@@ -1,0 +1,29 @@
+author: QRPp <awesome.walrus+github@gmail.com>
+description: Mongoose OS library for Xiaomi Mi 2 BLE sensors
+name: atc-mi
+type: lib
+version: 1.0
+manifest_version: 2020-08-02
+
+includes:
+  - include
+
+sources:
+  - src
+
+config_schema:
+  - ["atc_mi", "o", {"title": "Xiaomi Mi 2 BLE sensor settings"}]
+  - ["atc_mi.ble_scan", "b", true, {"title": "Maintain a continuous BLE scan loop"}]
+  - ["atc_mi.ble_scan_active", "b", false, {"title": "Get extra BLE advertisement data"}]
+  - ["atc_mi.list", "s", "", {"title": "Sensors: [{mac: ..., mi_key: ...}, ...]"}]
+  - ["atc_mi.list_only", "b", false, {"title": "Accept data only from MACs in `sensors'"}]
+  - ["atc_mi.debug", "o", {"title": "Debug logging settings"}]
+  - ["atc_mi.debug.accepted", "b", true, {"title": "Log all parsed ATC/Mi data"}]
+  - ["atc_mi.debug.failed", "b", true, {"title": "Log ATC/Mi data failed to parse"}]
+  - ["atc_mi.debug.raw", "b", false, {"title": "Log all raw BLE advertisements"}]
+  - ["atc_mi.debug.rejected", "b", false, {"title": "Log ATC/Mi data w/o MAC in `list'"}]
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/bt-common
+  - origin: https://github.com/mongoose-os-libs/rpc-common
+  - origin: https://github.com/QRPp/mgos-helpers
