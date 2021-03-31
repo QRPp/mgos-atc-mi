@@ -5,7 +5,7 @@
 #include <mgos_config.h>
 #include <mgos_rpc.h>
 
-#include <h_log.h>
+#include <mgos-helpers/log.h>
 
 #include <atc_mi.h>
 
