@@ -7,6 +7,10 @@
 #include <common/queue.h>
 #include <mgos_bt_gap.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct atc_mi {
   SLIST_ENTRY(atc_mi) entry;
   uint8_t mac[6];
@@ -44,3 +48,7 @@ typedef void (*atc_mi_data_sink)(uint8_t mac[6], struct atc_mi *atc_mi,
                                  void *opaque);
 void atc_mi_handle(struct mgos_bt_gap_scan_result *r);
 void atc_mi_set_sink(atc_mi_data_sink cb, void *opaque);
+
+#ifdef __cplusplus
+}
+#endif
