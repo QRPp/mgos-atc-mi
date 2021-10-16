@@ -17,9 +17,6 @@ struct __attribute__((packed)) ble_adv_chunk_hdr {
 };
 
 static struct mbedtls_ccm_context ccm;
-void atc_mi_decode_init() {
-  mbedtls_ccm_init(&ccm);
-}
 
 static struct atc_mi_sink {
   atc_mi_data_sink cb;
@@ -275,7 +272,7 @@ static void ble_adv_log(struct mgos_bt_gap_scan_result *r,
 static void ble_adv_log_raw(struct mgos_bt_gap_scan_result *r) {
   struct json_out *out = JSON_OUT_BUFA(256);
   json_printf(out, "%s %H", "adv", (int) r->adv_data.len, r->adv_data.p);
-  if (r->scan_rsp.len && mgos_sys_config_get_atc_mi_ble_scan_active()) {
+  if (r->scan_rsp.len && mgos_sys_config_get_bt_scan_active()) {
     json_printf(out, ", %s %H", "rsp", (int) r->scan_rsp.len, r->scan_rsp.p);
     struct mg_str name = mgos_bt_gap_parse_name(r->scan_rsp);
     if (name.p) json_printf(out, ", %s %.*Q", "name", (int) name.len, name.p);
@@ -283,8 +280,12 @@ static void ble_adv_log_raw(struct mgos_bt_gap_scan_result *r) {
   ble_adv_log(r, NULL, NULL, "raw", out->u.buf.buf);
 }
 
-void atc_mi_handle(struct mgos_bt_gap_scan_result *r) {
+static void atc_mi_handle(int ev, void *ev_data, void *userdata) {
+  if (ev != MGOS_BT_GAP_EVENT_SCAN_RESULT) return;
+
+  struct mgos_bt_gap_scan_result *r = ev_data;
   if (mgos_sys_config_get_atc_mi_debug_raw()) ble_adv_log_raw(r);
+
   struct atc_mi_fmt *fmt = formats;
   while (fmt->name && !fmt->detect(r)) fmt++;
   if (!fmt->name) return;
@@ -305,4 +306,10 @@ void atc_mi_handle(struct mgos_bt_gap_scan_result *r) {
     if (sink.cb) sink.cb(r->addr.addr, atc_mi, fmt->name, &data, sink.opaque);
   } else if (fail)
     ble_adv_log(r, fmt, atc_mi, "failed", fail->u.buf.buf);
+}
+
+void atc_mi_decode_init() {
+  mbedtls_ccm_init(&ccm);
+  mgos_event_add_group_handler(MGOS_BT_GAP_EVENT_SCAN_RESULT, atc_mi_handle,
+                               NULL);
 }

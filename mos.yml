@@ -13,8 +13,6 @@ sources:
 
 config_schema:
   - ["atc_mi", "o", {"title": "Xiaomi Mi 2 BLE sensor settings"}]
-  - ["atc_mi.ble_scan", "b", true, {"title": "Maintain a continuous BLE scan loop"}]
-  - ["atc_mi.ble_scan_active", "b", false, {"title": "Get extra BLE advertisement data"}]
   - ["atc_mi.list", "s", "", {"title": "Sensors: [{mac: ..., mi_key: ...}, ...]"}]
   - ["atc_mi.list_only", "b", false, {"title": "Accept data only from MACs in `sensors'"}]
   - ["atc_mi.debug", "o", {"title": "Debug logging settings"}]
