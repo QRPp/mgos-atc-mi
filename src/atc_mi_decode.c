@@ -18,14 +18,6 @@ struct __attribute__((packed)) ble_adv_chunk_hdr {
 
 static struct mbedtls_ccm_context ccm;
 
-static struct atc_mi_sink {
-  atc_mi_data_sink cb;
-  void *opaque;
-} sink = {NULL};
-void atc_mi_set_sink(atc_mi_data_sink cb, void *opaque) {
-  sink = (struct atc_mi_sink){cb, opaque};
-}
-
 #define JSON_OUT_BUFA(len)                             \
   ({                                                   \
     struct json_out *o = alloca(sizeof(*o));           \
@@ -312,15 +304,20 @@ static void atc_mi_handle(int ev, void *ev_data, void *userdata) {
   struct json_out *ok = NULL, *fail = NULL;
   if (mgos_sys_config_get_atc_mi_debug_accepted()) ok = JSON_OUT_BUFA(128);
   if (mgos_sys_config_get_atc_mi_debug_failed()) fail = JSON_OUT_BUFA(128);
-  if (fmt->decode(r, atc_mi, &data, ok, fail)) {
-    if (ok) ble_adv_log(r, mac, fmt, atc_mi, "accepted", ok->u.buf.buf);
-    if (sink.cb) sink.cb(r->addr.addr, atc_mi, fmt->name, &data, sink.opaque);
-  } else if (fail)
-    ble_adv_log(r, mac, fmt, atc_mi, "failed", fail->u.buf.buf);
+  if (!fmt->decode(r, atc_mi, &data, ok, fail)) {
+    if (fail) ble_adv_log(r, mac, fmt, atc_mi, "failed", fail->u.buf.buf);
+    return;
+  }
+
+  if (ok) ble_adv_log(r, mac, fmt, atc_mi, "accepted", ok->u.buf.buf);
+  struct atc_mi_event_data amed = {
+      .res = r, .atc_mi = atc_mi, .fmt = fmt->name, .data = &data};
+  mgos_event_trigger(ATC_MI_EVENT_DATA, &amed);
 }
 
 void atc_mi_decode_init() {
   mbedtls_ccm_init(&ccm);
+  mgos_event_register_base(ATC_MI_EVENT_DATA, "atc-mi");
   mgos_event_add_group_handler(MGOS_BT_GAP_EVENT_SCAN_RESULT, atc_mi_handle,
                                NULL);
 }

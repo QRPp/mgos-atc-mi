@@ -7,9 +7,7 @@
 #include <common/queue.h>
 #include <mgos_bt_gap.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define ATC_MI_EVENT_DATA MGOS_EVENT_BASE('A', 'T', 'C')
 
 struct atc_mi {
   SLIST_ENTRY(atc_mi) entry;
@@ -43,11 +41,9 @@ struct atc_mi_data {
   uint8_t flags;       // ATC/pvvx trigger flags
 };
 
-typedef void (*atc_mi_data_sink)(uint8_t mac[6], struct atc_mi *atc_mi,
-                                 const char *fmt, struct atc_mi_data *data,
-                                 void *opaque);
-void atc_mi_set_sink(atc_mi_data_sink cb, void *opaque);
-
-#ifdef __cplusplus
-}
-#endif
+struct atc_mi_event_data {
+  const struct mgos_bt_gap_scan_result *res;
+  struct atc_mi *atc_mi;
+  const char *fmt;
+  const struct atc_mi_data *data;
+};
