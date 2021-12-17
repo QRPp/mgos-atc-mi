@@ -3,7 +3,6 @@
 
 #include <mgos.h>
 #include <mgos_config.h>
-#include <mgos_rpc.h>
 
 #include <mgos-helpers/log.h>
 
@@ -17,14 +16,14 @@ bool atc_mi_add(struct atc_mi *atc_mi) {
   return true;
 }
 
-bool atc_mi_add_json(struct mg_str json) {
-  struct atc_mi *new = atc_mi_load_json(json);
+bool atc_mi_add_json(struct json_token v) {
+  struct atc_mi *new = atc_mi_load_json(v);
   if (!new) return false;
   if (atc_mi_add(new)) {
-    LOG(LL_INFO, ("%s(): added %.*s", __FUNCTION__, json.len, json.p));
+    LOG(LL_INFO, ("%s(): added %.*s", __FUNCTION__, v.len, v.ptr));
     return true;
   }
-  FNERR("duplicate: %.*s", json.len, json.p);
+  FNERR("duplicate: %.*s", v.len, v.ptr);
   atc_mi_free(new);
   return false;
 }
@@ -34,7 +33,7 @@ unsigned atc_mi_add_json_many(struct mg_str json) {
   void *h = NULL;
   struct json_token v;
   while ((h = json_next_elem(json.p, json.len, h, "", NULL, &v)) != NULL)
-    if (atc_mi_add_json(mg_mk_str_n(v.ptr, v.len))) loaded++;
+    if (atc_mi_add_json(v)) loaded++;
   return loaded;
 }
 
@@ -53,20 +52,21 @@ void atc_mi_free(struct atc_mi *old) {
   free(old);
 }
 
-struct atc_mi *atc_mi_load_json(struct mg_str j) {
+struct atc_mi *atc_mi_load_json(struct json_token v) {
   struct atc_mi *new = NULL;
   void *key = NULL, *mac = NULL, *name = NULL;
   int keyL, macL, nameL;
-  int ret = json_scanf(j.p, j.len, "{mac:%H,mi_key:%H,name:%Q}", &macL, &mac,
+  int ret = json_scanf(v.ptr, v.len, "{mac:%H,mi_key:%H,name:%Q}", &macL, &mac,
                        &keyL, &key, &name, &nameL);
   if (ret < 0)
-    FNERR("json_scanf(%.*s): %d", j.len, j.p, ret);
+    FNERR("json_scanf(%.*s): %d", v.len, v.ptr, ret);
   else if (!mac)
-    FNERR("no mac: %.*s", j.len, j.p);
+    FNERR("no mac: %.*s", v.len, v.ptr);
   else if (macL != sizeof(new->mac))
-    FNERR("need %u byte %s: %.*s", sizeof(new->mac), "mac", j.len, j.p);
+    FNERR("need %u byte %s: %.*s", sizeof(new->mac), "mac", v.len, v.ptr);
   else if (key && keyL != sizeof(*new->mi_key))
-    FNERR("need %u byte %s: %.*s", sizeof(*new->mi_key), "mi_key", j.len, j.p);
+    FNERR("need %u byte %s: %.*s", sizeof(*new->mi_key), "mi_key", v.len,
+          v.ptr);
   else if (!(new = malloc(sizeof(*new))))
     FNERR("%s(%u): %s", "malloc", sizeof(*new), strerror(errno));
   else {
@@ -93,28 +93,6 @@ unsigned atc_mi_purge() {
   return purged;
 }
 
-static void atc_mi_load_sensors_handler(struct mg_rpc_request_info *ri,
-                                        void *cb_arg,
-                                        struct mg_rpc_frame_info *fi,
-                                        struct mg_str args) {
-  mg_rpc_send_responsef(
-      ri, "{loaded:%u}",
-      atc_mi_add_json_many(
-          args.len ? args : mg_mk_str(mgos_sys_config_get_atc_mi_list())));
-}
-
-static void atc_mi_purge_sensors_handler(struct mg_rpc_request_info *ri,
-                                         void *cb_arg,
-                                         struct mg_rpc_frame_info *fi,
-                                         struct mg_str args) {
-  mg_rpc_send_responsef(ri, "{purged:%u}", atc_mi_purge());
-}
-
 void atc_mi_sensors_init() {
   SLIST_INIT(&atc_mis);
-  atc_mi_add_json_many(mg_mk_str(mgos_sys_config_get_atc_mi_list()));
-  mg_rpc_add_handler(mgos_rpc_get_global(), "AtcMi.LoadSensors", "",
-                     atc_mi_load_sensors_handler, NULL);
-  mg_rpc_add_handler(mgos_rpc_get_global(), "AtcMi.PurgeSensors", "",
-                     atc_mi_purge_sensors_handler, NULL);
 }

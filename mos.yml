@@ -13,15 +13,13 @@ sources:
 
 config_schema:
   - ["atc_mi", "o", {"title": "Xiaomi Mi 2 BLE sensor settings"}]
-  - ["atc_mi.list", "s", "", {"title": "Sensors: [{mac: ..., mi_key: ...}, ...]"}]
-  - ["atc_mi.list_only", "b", false, {"title": "Accept data only from MACs in `sensors'"}]
+  - ["atc_mi.any", "b", false, {"title": "Accept data from unknown sensors"}]
   - ["atc_mi.debug", "o", {"title": "Debug logging settings"}]
   - ["atc_mi.debug.accepted", "b", true, {"title": "Log all parsed ATC/Mi data"}]
   - ["atc_mi.debug.failed", "b", true, {"title": "Log ATC/Mi data failed to parse"}]
   - ["atc_mi.debug.raw", "b", false, {"title": "Log all raw BLE advertisements"}]
-  - ["atc_mi.debug.rejected", "b", false, {"title": "Log ATC/Mi data w/o MAC in `list'"}]
+  - ["atc_mi.debug.rejected", "b", false, {"title": "Log non-accepted ATC/Mi data"}]
 
 libs:
-  - origin: https://github.com/mongoose-os-libs/bt-common
-  - origin: https://github.com/mongoose-os-libs/rpc-common
+  - {origin: https://github.com/QRPp/mgos-bt-gap-scan, name: bt-gap-scan}
   - {origin: https://github.com/QRPp/mgos-helpers, name: helpers}

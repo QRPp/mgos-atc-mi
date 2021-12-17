@@ -295,7 +295,7 @@ static void atc_mi_handle(int ev, void *ev_data, void *userdata) {
   struct atc_mi_data data;
   const uint8_t *mac = fmt->mac(r, &data);
   struct atc_mi *atc_mi = atc_mi_find(mac ?: r->addr.addr);
-  if (!atc_mi && mgos_sys_config_get_atc_mi_list_only()) {
+  if (!atc_mi && !mgos_sys_config_get_atc_mi_any()) {
     if (mgos_sys_config_get_atc_mi_debug_rejected())
       ble_adv_log(r, mac, fmt, NULL, "rejected", NULL);
     return;

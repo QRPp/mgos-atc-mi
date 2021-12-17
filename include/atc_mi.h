@@ -18,11 +18,11 @@ struct atc_mi {
 };
 
 bool atc_mi_add(struct atc_mi *atc_mi);
-bool atc_mi_add_json(struct mg_str json);
+bool atc_mi_add_json(struct json_token v);
 unsigned atc_mi_add_json_many(struct mg_str json);
 struct atc_mi *atc_mi_find(const uint8_t mac[6]);
 void atc_mi_free(struct atc_mi *atc_mi);
-struct atc_mi *atc_mi_load_json(struct mg_str json);
+struct atc_mi *atc_mi_load_json(struct json_token v);
 unsigned atc_mi_purge();
 
 #define ATC_MI_DATA_TEMP_CC_INVAL INT16_MAX
