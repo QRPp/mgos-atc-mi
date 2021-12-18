@@ -18,7 +18,7 @@ struct atc_mi {
 };
 
 bool atc_mi_add(struct atc_mi *atc_mi);
-bool atc_mi_add_json(struct json_token v);
+struct atc_mi *atc_mi_add_json(struct json_token v);
 unsigned atc_mi_add_json_many(struct mg_str json);
 struct atc_mi *atc_mi_find(const uint8_t mac[6]);
 void atc_mi_free(struct atc_mi *atc_mi);

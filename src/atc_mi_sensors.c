@@ -4,6 +4,7 @@
 #include <mgos.h>
 #include <mgos_config.h>
 
+#include <mgos-helpers/json.h>
 #include <mgos-helpers/log.h>
 
 #include <atc_mi.h>
@@ -11,21 +12,22 @@
 static SLIST_HEAD(atc_mis, atc_mi) atc_mis;
 
 bool atc_mi_add(struct atc_mi *atc_mi) {
-  if (atc_mi_find(atc_mi->mac)) return false;
-  SLIST_INSERT_HEAD(&atc_mis, atc_mi, entry);
-  return true;
-}
-
-bool atc_mi_add_json(struct json_token v) {
-  struct atc_mi *new = atc_mi_load_json(v);
-  if (!new) return false;
-  if (atc_mi_add(new)) {
-    LOG(LL_INFO, ("%s(): added %.*s", __FUNCTION__, v.len, v.ptr));
+  if (!atc_mi_find(atc_mi->mac)) {
+    SLIST_INSERT_HEAD(&atc_mis, atc_mi, entry);
     return true;
   }
-  FNERR("duplicate: %.*s", v.len, v.ptr);
-  atc_mi_free(new);
+
+  struct json_out *out = JSON_OUT_BUFA(16);
+  json_printf(out, "%H", sizeof(atc_mi->mac), atc_mi->mac);
+  FNERR("duplicate MAC %s", out->u.buf.buf);
   return false;
+}
+
+struct atc_mi *atc_mi_add_json(struct json_token v) {
+  struct atc_mi *new = atc_mi_load_json(v);
+  if (!new || atc_mi_add(new)) return new;
+  atc_mi_free(new);
+  return NULL;
 }
 
 unsigned atc_mi_add_json_many(struct mg_str json) {
