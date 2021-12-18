@@ -8,6 +8,8 @@
 #include <mgos_bt.h>
 #include <mgos_bt_gap.h>
 
+#include <mgos-helpers/json.h>
+
 #include <atc_mi.h>
 
 // {{{1 Sundry
@@ -17,14 +19,6 @@ struct __attribute__((packed)) ble_adv_chunk_hdr {
 };
 
 static struct mbedtls_ccm_context ccm;
-
-#define JSON_OUT_BUFA(len)                             \
-  ({                                                   \
-    struct json_out *o = alloca(sizeof(*o));           \
-    size_t l = (len);                                  \
-    *o = (struct json_out) JSON_OUT_BUF(alloca(l), l); \
-    o;                                                 \
-  })
 
 #define JSON_PRINTF_AND_MBEDTLS(out, err, fmt, ...) \
   do {                                              \
