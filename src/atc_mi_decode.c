@@ -8,6 +8,7 @@
 #include <mgos_bt.h>
 #include <mgos_bt_gap.h>
 
+#include <mgos-helpers/bt.h>
 #include <mgos-helpers/json.h>
 
 #include <atc_mi.h>
@@ -35,8 +36,7 @@ static uint8_t *maccpy_reverse(uint8_t dst[6], uint8_t src[6]) {
 static void src_log_if_diff_mac(struct mgos_bt_addr *src, uint8_t mac[6],
                                 struct json_out *out) {
   if (!mac || !memcmp(src->addr, mac, sizeof(src->addr))) return;
-  const char *str = mgos_bt_addr_to_str(src, 0, alloca(MGOS_BT_ADDR_STR_LEN));
-  json_printf(out, " (%s %s)", "src", str);
+  json_printf(out, " (%s %s)", "src", BT_ADDR_STRA(src, 0));
 }
 
 // {{{1 ATC pvvx
@@ -257,8 +257,7 @@ static void ble_adv_log(struct mgos_bt_gap_scan_result *r, const uint8_t mac[6],
                         const char *reason, const char *detail) {
   const struct mgos_bt_addr *addr = (void *) mac ?: &r->addr;
   LOG(LL_INFO, ("%s:%s%s (%s%s%s%s rssi %d)%s%s", reason, fmt ? " " : "",
-                fmt ? fmt->name : "",
-                mgos_bt_addr_to_str(addr, 0, alloca(MGOS_BT_ADDR_STR_LEN)),
+                fmt ? fmt->name : "", BT_ADDR_STRA(addr, 0),
                 atc_mi && atc_mi->name ? " \"" : "",
                 atc_mi && atc_mi->name ? atc_mi->name : "",
                 atc_mi && atc_mi->name ? "\"" : "", r->rssi, detail ? ": " : "",
