@@ -19,7 +19,7 @@ bool atc_mi_add(struct atc_mi *atc_mi) {
 
   struct json_out *out = JSON_OUT_BUFA(16);
   json_printf(out, "%H", sizeof(atc_mi->mac), atc_mi->mac);
-  FNERR("duplicate MAC %s", out->u.buf.buf);
+  FNERR("%s %s", "duplicate MAC", out->u.buf.buf);
   return false;
 }
 
