@@ -57,9 +57,9 @@ void atc_mi_free(struct atc_mi *old) {
 struct atc_mi *atc_mi_load_json(struct json_token v) {
   struct atc_mi *new = NULL;
   void *key = NULL, *mac = NULL, *name = NULL;
-  int keyL, macL, nameL;
+  int keyL, macL;
   int ret = json_scanf(v.ptr, v.len, "{mac:%H,mi_key:%H,name:%Q}", &macL, &mac,
-                       &keyL, &key, &name, &nameL);
+                       &keyL, &key, &name);
   if (ret < 0)
     FNERR("json_scanf(%.*s): %d", v.len, v.ptr, ret);
   else if (!mac)
