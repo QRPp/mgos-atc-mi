@@ -1,0 +1,22 @@
+LYWSD03MMC	IC.pin etc	Note
+-------------------------------------------------------------------------------------
+B1		U1.13		SDM_N1/SP1_D0/UART_RX/lc_comp_ain<7>/sar_aio<7>/PB<7>
+
+P2		U1.7, VBat+	VDD_IO
+P3		U1.5		DVSS
+
+P5		U1.10		VDD1V2
+P6 “Reset”	U1.2		DM/PA<5>
+P7		U1.1		SPI_CK/I2S_BCK/7816_TRX(UART_TX)/PD<7>
+P8		U1.3		DP(SWS)/PA<6>
+P9		U1.17		PWM2/UART_CTS/PWM0_N/sar_aio<8>/PC<4>
+P10		U1.12		SDM_P1/SPI_DI/UART_RTS/lc_comp_ain<6>/sar_aio<6>/PB<6>
+
+P13		U1.15		PWM0/7816_TRX(UART_TX)/I2C_SDA/XC32K_O/PGA_P1/PC<2>
+P14		U1.4		SWS/UART_RTS/PA<7>
+P15		U1.16		PWM1/UART_RX/I2C_SCK/XC32K_I/PGA_N1/PC<3>
+P16		U2.2
+P17		U2.15, P1.16
+P18		U2.14, P1.1
+
+P20 “GND”	U1.5, VBat-	DVSS
